@@ -150,8 +150,18 @@ rigor with ground-truth tests; honest experimental methodology (seeded evals, CI
 codebase with typed interfaces and CI. Complements policyserve (robot policy serving) and repvision-ai (pose
 estimation) — together they span perception, learning and deployment for robotics roles.
 
-## 12. Open decisions (for review)
-1. Task: pick-and-place cube (proposed) — OK, or push / other?
-2. Robot: Franka Panda from MuJoCo Menagerie (proposed) vs reusing policyserve's simple arm.
-3. v1 policy observation: object pose state first, images later (proposed).
-4. Do you already have a video of the task, or should the first real video be recorded after the synthetic pipeline works?
+## 12. Decisions (approved 2026-10-12)
+1. Task: pick-and-place a cube onto a target zone.
+2. Robot: Franka Panda from MuJoCo Menagerie (vendored under `demo2policy/sim/assets/panda`, Apache-2.0, with a grasp-centre site added).
+3. v1 policy observation: object pose state first, images later.
+4. Video: the synthetic pipeline comes first; the first real video is recorded once milestones 1-5 pass.
+5. Language: **Python 3.11** (rationale: MuJoCo, PyTorch, MediaPipe and the whole robot-learning ecosystem are Python-first;
+   the target robotics/ML-application roles expect it). Runner-up: Rust for a perf-critical sim loop - not needed, a
+   headless rollout is ~25 ms per control step.
+
+## 13. Implementation notes (kept current)
+- Action space: absolute end-effector position target + gripper in [0,1] + fixed-yaw top-down orientation, solved with
+  damped-least-squares IK each control step (20 Hz control, 0.002 s physics). Commanded targets are rate-limited
+  (0.8 m/s) and clipped to a workspace box, so any demo source (expert, video retargeting, policy) is physically bounded.
+- Scripted expert: 200/200 successes on fresh seeds at 0.3 m/s; at 0.5 m/s it drops the cube ~15% of the time, and at
+  0.2 m/s ~10% fail (slow runs let the cube slip/rotate in the grip). Default is 0.3. Known brittleness, not yet root-caused.

@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "demo2policy"
+version = "0.1.0"
+description = "Learning robot manipulation from human videos: video -> retargeted demos -> imitation policy -> MuJoCo evaluation"
+requires-python = ">=3.11"
+dependencies = [
+  "mujoco>=3.2",
+  "numpy>=1.26",
+  "scipy>=1.11",
+  "h5py>=3.10",
+  "pydantic>=2.6",
+  "pyyaml>=6.0",
+  "typer>=0.12",
+  "matplotlib>=3.8",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "ruff>=0.5"]
+vision = ["mediapipe>=0.10.14", "opencv-python>=4.9"]
+learn = ["torch>=2.2"]
+
+[project.scripts]
+d2p = "demo2policy.cli:app"
+
+[tool.setuptools.packages.find]
+include = ["demo2policy*"]
+
+[tool.setuptools.package-data]
+"demo2policy.sim" = ["assets/**/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 110
