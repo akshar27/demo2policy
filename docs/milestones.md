@@ -10,6 +10,15 @@
       synthetic projections with ground truth; MediaPipe Hands adapter behind a `HandTracker` interface. Lifting = closed-form linear PnP with the rotation known from the tracker's world landmarks (palm-only Procrustes for orientation). Error table `docs/results/lifting_error.md`: at 0.6 m with 2 px / 3 mm noise, median lateral error 3.8 mm, depth 6.4 mm, rotation 4.2 deg; **a 5-10% error in the tracker's metric scale gives 27-57 mm depth error** (depth is the weak axis and rests on that assumption). MediaPipe's world-landmark axis convention is *assumed*, to be verified on real footage in M6.
 - [x] **M5 Cleaning, segmentation, retargeting** - One-Euro filtering, gap handling, phase segmentation, hand->gripper
       retargeting with IK-feasibility checks, quality gate with rejection reasons; synthetic "fake human video" round-trip. Result (`docs/results/roundtrip.md`, 30 expert demos filmed by a virtual camera, unknown human-world transform): clean tracker 30/30 replay successes; typical noise (1.5 px, 3 mm, 2 dropouts, 1 glitch) 27/30 (2 rejected for an unbridgeable gap); 4 px noise 23/30; 8 px noise all rejected (reprojection-error gate); +-15% metric-scale error 26-28/30 - anchor alignment absorbs most of a uniform scale error. Findings that changed the code: anchor points averaged over 4 closed frames (single noisy frames shifted the whole path), smoothing sigma 0.06 -> 0.15 s.
-- [ ] **M6 Real video end to end** - run the chain on real recorded videos, replay in sim, train on video-derived demos,
+- [~] **M6 Real video end to end** (6a DONE with synthetic video; 6b needs the first real recording) - run the chain on real recorded videos, replay in sim, train on video-derived demos,
       report video-vs-expert success with honest failure analysis.
 - [ ] **M7 Polish** - README with mermaid architecture + results + decisions/tradeoffs, CI, resume bullets.
+
+**M6a result** (`docs/results/video_to_bc.md`, BC with obs-noise 0.05, 3 seeds x 100 seeded eval episodes): 10 expert demos 22%;
+1 synthetic human video retargeted to 100 scenes 40%; **10 videos x 10 scenes 70%**; 20 x 5 70%; 100 expert demos 94%.
+Multi-scene retargeting turns a handful of videos into a usable dataset, but a policy trained on video-derived demos is
+still ~24 points below one trained on clean expert demos - the retargeted motions are noisier and less diverse.
+
+**M6b (next, needs the user):** record 5-10 short videos of a human picking a small object and placing it, camera fixed
+with a known downward pitch, whole hand visible; run `d2p video-to-demo VIDEO --cam-pitch <deg>`; inspect the QA report;
+verify MediaPipe's world-landmark axis convention and the assumed intrinsics on real footage.
