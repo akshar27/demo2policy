@@ -1,6 +1,7 @@
 """`d2p` command line: generate demos, evaluate policies."""
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import typer
@@ -47,3 +48,17 @@ def eval_cmd(policy: str, episodes: int = 50, seed0: int = 10_000, out: Path | N
 
 if __name__ == "__main__":
     app()
+
+
+@app.command("train-bc")
+def train_bc_cmd(demos: Path = Path("data/expert.h5"), n_demos: int = 0, epochs: int = 300, use_time: bool = False,
+                 obs_noise: float = 0.0, seed: int = 0, out: Path = Path("runs/bc")):
+    """Train a behavior-cloning policy on the first `n_demos` demos (0 = all). Writes <out>/model.pt."""
+    from .policies.bc import BCConfig, train_bc
+    ds, _ = load_demoset(demos)
+    ds = ds[:n_demos] if n_demos else ds
+    losses: list = []
+    pol = train_bc(ds, BCConfig(epochs=epochs, use_time=use_time, obs_noise=obs_noise, seed=seed), log=losses)
+    pol.save(out / "model.pt")
+    (out / "train.json").write_text(json.dumps({"n_demos": len(ds), "loss": losses}))
+    typer.echo(f"trained on {len(ds)} demos, final loss {losses[-1]:.4f} -> {out / 'model.pt'}")

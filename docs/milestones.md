@@ -4,8 +4,8 @@
       scripted privileged-state expert (200/200 on fresh seeds), 7 tests, filmstrip figure.
 - [x] **M2 Demo format + replay baseline + eval harness** - `Demo`/`DemoSet` HDF5 schema, expert dataset generation,
       open-loop replay baseline, seeded evaluation with Wilson 95% CI, run directories, `d2p` CLI. Result: open-loop replay of one expert demo on randomised cubes succeeds 4% (2/50, CI 1.1-13.5%); the expert itself ~100%. That gap is what learning has to close.
-- [ ] **M3 Behavior cloning** - BC-MLP on expert demos (state obs); compare vs replay on randomised cube positions;
-      ablation over number of demos.
+- [x] **M3 Behavior cloning** - BC-MLP on expert demos (state obs); compare vs replay on randomised cube positions;
+      ablation over number of demos. Result (3 training seeds x 50 seeded episodes, `docs/results/bc_sweep.md`): plain BC 31% (10 demos) -> 45% (100 demos); adding 0.05 train-time observation noise -> **92.7%** at 100 demos; replay baseline 4%; scripted expert ~100%. Noise 0.1 is too much (78%). Not yet explained why +time helps only on some seeds (high variance 44-92%).
 - [ ] **M4 Geometry + hand perception** - camera model, monocular lifting with a documented depth assumption, tested on
       synthetic projections with ground truth; MediaPipe Hands adapter behind a `HandTracker` interface.
 - [ ] **M5 Cleaning, segmentation, retargeting** - One-Euro filtering, gap handling, phase segmentation, hand->gripper
