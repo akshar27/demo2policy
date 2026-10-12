@@ -87,7 +87,8 @@ class PickPlaceEnv:
         return np.concatenate([self.ee_pos, [self.gripper_opening], self.cube_pos, [gy], self.target]).astype(np.float32)
 
     # ------------------------------------------------------------------ gym-ish API
-    def reset(self, seed: int | None = None, cube_xy: tuple | None = None, cube_yaw: float | None = None) -> np.ndarray:
+    def reset(self, seed: int | None = None, cube_xy: tuple | None = None, cube_yaw: float | None = None,
+              target_xy: tuple | None = None) -> np.ndarray:
         if seed is not None:
             self.rng = np.random.default_rng(seed)
         c, r = self.cfg, self.rng
@@ -100,7 +101,8 @@ class PickPlaceEnv:
         a = self.cube_qadr
         self.data.qpos[a:a + 3] = [xy[0], xy[1], CUBE_HALF]
         self.data.qpos[a + 3:a + 7] = [np.cos(yaw / 2), 0, 0, np.sin(yaw / 2)]
-        tgt = np.array(c.target_xy) + (r.uniform(-c.target_jitter, c.target_jitter, 2) if c.target_jitter > 0 else 0)
+        tgt = np.array(target_xy) if target_xy is not None else (
+            np.array(c.target_xy) + (r.uniform(-c.target_jitter, c.target_jitter, 2) if c.target_jitter > 0 else 0))
         self.target = np.array([tgt[0], tgt[1], 0.0])
         self.model.site_pos[self.target_site] = [tgt[0], tgt[1], 0.001]
         mujoco.mj_forward(self.model, self.data)
