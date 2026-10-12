@@ -16,7 +16,7 @@ from .ik import IKSolver, down_rotation
 
 SCENE = Path(__file__).parent / "assets" / "panda" / "d2p_scene.xml"
 HOME_QPOS = np.array([0, 0, 0, -1.57079, 0, 1.57079, -0.7853, 0.04, 0.04])
-OBS_DIM = 10  # ee(3) gripper_opening(1) cube(3) target(3)
+OBS_DIM = 11  # ee(3) gripper_opening(1) cube(3) cube_grasp_yaw(1) target(3)
 CUBE_HALF = 0.02
 
 
@@ -83,7 +83,8 @@ class PickPlaceEnv:
         return float(self.data.qpos[7] + self.data.qpos[8])
 
     def obs(self) -> np.ndarray:
-        return np.concatenate([self.ee_pos, [self.gripper_opening], self.cube_pos, self.target]).astype(np.float32)
+        gy = (self.cube_yaw + np.pi / 4) % (np.pi / 2) - np.pi / 4  # cube is 90-degree symmetric
+        return np.concatenate([self.ee_pos, [self.gripper_opening], self.cube_pos, [gy], self.target]).astype(np.float32)
 
     # ------------------------------------------------------------------ gym-ish API
     def reset(self, seed: int | None = None, cube_xy: tuple | None = None, cube_yaw: float | None = None) -> np.ndarray:

@@ -2,8 +2,8 @@
 
 - [x] **M1 Simulator + scripted expert** - MuJoCo Panda pick-and-place scene, DLS IK, randomised cube, success detector,
       scripted privileged-state expert (200/200 on fresh seeds), 7 tests, filmstrip figure.
-- [ ] **M2 Demo format + replay baseline + eval harness** - `Demo`/`DemoSet` HDF5 schema, expert dataset generation,
-      open-loop replay baseline, seeded evaluation with Wilson 95% CI, run directories, `d2p` CLI skeleton.
+- [x] **M2 Demo format + replay baseline + eval harness** - `Demo`/`DemoSet` HDF5 schema, expert dataset generation,
+      open-loop replay baseline, seeded evaluation with Wilson 95% CI, run directories, `d2p` CLI. Result: open-loop replay of one expert demo on randomised cubes succeeds 4% (2/50, CI 1.1-13.5%); the expert itself ~100%. That gap is what learning has to close.
 - [ ] **M3 Behavior cloning** - BC-MLP on expert demos (state obs); compare vs replay on randomised cube positions;
       ablation over number of demos.
 - [ ] **M4 Geometry + hand perception** - camera model, monocular lifting with a documented depth assumption, tested on

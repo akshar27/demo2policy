@@ -10,3 +10,4 @@ data/tracks/
 *.mp4
 *.mov
 .DS_Store
+data/*.h5
