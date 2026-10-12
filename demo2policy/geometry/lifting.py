@@ -17,7 +17,15 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from ..perception.hand_model import INDEX_TIP, OPEN_HAND, THUMB_TIP, WRIST, HandObservation, hand_scale, pinch_ratio
+from ..perception.hand_model import (
+    INDEX_TIP,
+    OPEN_HAND,
+    THUMB_TIP,
+    WRIST,
+    HandObservation,
+    hand_scale,
+    pinch_ratio,
+)
 from .camera import Camera
 
 # Only the palm (wrist + the four finger-base knuckles) is rigid; fingers/thumb articulate, so they must not drive the

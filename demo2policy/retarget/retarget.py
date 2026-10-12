@@ -121,8 +121,9 @@ def retarget(traj: Trajectory, cfg: RetargetConfig | None = None, env_cfg: EnvCo
     pts = np.clip(pts, lo, hi)
 
     # IK feasibility along the whole path (warm-started), with the top-down orientation the sim uses
-    from ..sim.env import HOME_QPOS, SCENE
     import mujoco
+
+    from ..sim.env import HOME_QPOS, SCENE
     ik = IKSolver(mujoco.MjModel.from_xml_path(str(SCENE)))
     q = HOME_QPOS.copy()
     bad = 0

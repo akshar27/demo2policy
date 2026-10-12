@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import numpy as np
-
 from ..sim.env import PickPlaceEnv
 from ..sim.expert import ExpertConfig, rollout_expert
 from .demo import Demo

@@ -5,7 +5,6 @@ and its mistakes do not accumulate in an absolute frame; the policy re-reads the
 """
 from __future__ import annotations
 
-import json
 from dataclasses import asdict, dataclass
 from pathlib import Path
 

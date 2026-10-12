@@ -5,7 +5,6 @@ from demo2policy.data.expert_data import generate_expert_demos
 from demo2policy.geometry.lifting import lift_hand
 from demo2policy.pipeline import demo_from_poses, poses_from_observations
 from demo2policy.retarget.clean import CleanConfig, TrackRejected, clean_track
-from demo2policy.retarget.retarget import RetargetConfig
 from demo2policy.sim.env import PickPlaceEnv
 from demo2policy.synth.human import HumanStyle, default_camera, human_observations
 

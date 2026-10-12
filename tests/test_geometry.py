@@ -4,7 +4,13 @@ from scipy.spatial.transform import Rotation
 
 from demo2policy.geometry.camera import Camera, look_at
 from demo2policy.geometry.lifting import PALM, lift_hand, procrustes_rotation, rotation_angle_deg
-from demo2policy.perception.hand_model import (OPEN_HAND, hand_scale, hand_shape, pinch_ratio, synth_observation)
+from demo2policy.perception.hand_model import (
+    OPEN_HAND,
+    hand_scale,
+    hand_shape,
+    pinch_ratio,
+    synth_observation,
+)
 
 CAM = Camera.from_fov(640, 480, 65.0)
 

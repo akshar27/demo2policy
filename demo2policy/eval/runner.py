@@ -5,8 +5,6 @@ import time
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
-import numpy as np
-
 from ..policies.base import Policy
 from ..sim.env import EnvConfig, PickPlaceEnv
 from .stats import wilson_interval

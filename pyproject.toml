@@ -37,3 +37,7 @@ testpaths = ["tests"]
 
 [tool.ruff]
 line-length = 110
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+ignore = ["E731", "E741", "E501"]

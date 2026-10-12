@@ -53,3 +53,19 @@ def look_at(eye, target, up=(0.0, 0.0, 1.0)) -> np.ndarray:
     T[:3, :3] = np.stack([x, y, z], axis=1)
     T[:3, 3] = eye
     return T
+
+
+def pose_from_pitch(pitch_deg: float, height: float = 0.5) -> np.ndarray:
+    """Camera pose (camera->world) for a camera at `height` m looking forward and tilted down by `pitch_deg`, no roll.
+
+    World: x = camera's horizontal forward direction, y = left, z = up. The anchor alignment in retargeting only rotates
+    about the world z axis, so this frame must have z vertical: a camera whose tilt is unknown/ignored breaks that
+    assumption, which is why the pitch is an explicit input.
+    """
+    p = np.radians(pitch_deg)
+    x = np.array([0.0, -1.0, 0.0])
+    z = np.array([np.cos(p), 0.0, -np.sin(p)])
+    T = np.eye(4)
+    T[:3, :3] = np.stack([x, np.cross(z, x), z], axis=1)
+    T[:3, 3] = [0.0, 0.0, height]
+    return T
