@@ -11,3 +11,4 @@ data/tracks/
 *.mov
 .DS_Store
 data/*.h5
+demo2policy/perception/assets/*.task
