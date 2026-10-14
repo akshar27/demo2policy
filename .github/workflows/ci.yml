@@ -16,6 +16,6 @@ jobs:
           cache-dependency-path: pyproject.toml
       - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libgl1 libegl1 libglib2.0-0
       - run: pip install torch --index-url https://download.pytorch.org/whl/cpu
-      - run: pip install -e ".[dev,vision,learn]"
+      - run: pip install -e ".[dev,vision,learn,depth]"
       - run: ruff check .
       - run: pytest -q

@@ -22,3 +22,11 @@ still ~24 points below one trained on clean expert demos - the retargeted motion
 **M6b (next, needs the user):** record 5-10 short videos of a human picking a small object and placing it, camera fixed
 with a known downward pitch, whole hand visible; run `d2p video-to-demo VIDEO --cam-pitch <deg>`; inspect the QA report;
 verify MediaPipe's world-landmark axis convention and the assumed intrinsics on real footage.
+
+- [x] **M6c Optional depth model** - `DepthEstimator` interface + Depth Anything V2 (Small, HF) adapter; per-video affine
+      calibration of its relative disparity against the PnP depth (robust IRLS) and inverse-depth fusion into the pinch
+      point (`d2p video-to-demo --depth`). Check on MuJoCo renders with exact depth (`docs/results/depth_check.md`):
+      Spearman 0.98 with true inverse depth; 1.4-1.8% median relative depth error when calibrated on only 5 pixels.
+      **Caveats stated in code and tests:** (1) that scene is a robot arm on a floor, not a human hand in real footage;
+      (2) the model is calibrated against PnP depth, so fusion reduces per-frame noise but inherits PnP's systematic scale
+      bias (unit-tested: a 10% scale bias survives fusion). Whether it improves real-video demos is decided in M6b.

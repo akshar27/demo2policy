@@ -8,7 +8,9 @@ import numpy as np
 
 from .data.demo import Demo
 from .geometry.camera import Camera, pose_from_pitch
+from .geometry.depth_fusion import refine_with_depth
 from .geometry.lifting import HandPose3D, lift_hand
+from .perception.depth import DepthEstimator, sample_disparity
 from .perception.tracker import HandTracker, iter_video_frames
 from .retarget.clean import CleanConfig, TrackRejected, clean_track
 from .retarget.retarget import RetargetConfig, retarget
@@ -20,16 +22,24 @@ def poses_from_observations(observations: list, cam: Camera) -> list[HandPose3D 
 
 
 def poses_from_video(path: str | Path, tracker: HandTracker, cam: Camera | None = None, hfov_deg: float = 65.0,
-                     cam_pitch_deg: float = 0.0):
-    """Run the hand tracker over a video file. Returns (poses, camera). Intrinsics are assumed from `hfov_deg` unless a camera is given."""
-    observations = []
+                     cam_pitch_deg: float = 0.0, depth: DepthEstimator | None = None, depth_weight: float = 0.5):
+    """Run the hand tracker over a video file. Returns (poses, camera, depth_info). Intrinsics are assumed from `hfov_deg`
+    unless a camera is given. With a depth estimator, its reading at the pinch point is fused into each pose."""
+    observations, samples = [], []
     for t_ms, frame in iter_video_frames(path):
         if cam is None:
             cam = Camera.from_fov(frame.shape[1], frame.shape[0], hfov_deg, pose_from_pitch(cam_pitch_deg))
-        observations.append(tracker.track(frame, t_ms))
+        o = tracker.track(frame, t_ms)
+        observations.append(o)
+        if depth is not None:
+            samples.append(None if o is None else sample_disparity(depth.disparity(frame), 0.5 * (o.image_px[4] + o.image_px[8])))
     if cam is None:
         raise ValueError("video has no frames")
-    return poses_from_observations(observations, cam), cam
+    poses = poses_from_observations(observations, cam)
+    info = {"fusion": "off"}
+    if depth is not None:
+        poses, info = refine_with_depth(poses, samples, cam, depth_weight)
+    return poses, cam, info
 
 
 def demo_from_poses(poses: list, env: PickPlaceEnv, source: str, clean_cfg: CleanConfig | None = None,
@@ -98,12 +108,13 @@ def demos_from_poses_multiscene(poses: list, env: PickPlaceEnv, n_scenes: int, s
 
 def process_video(path: str | Path, tracker: HandTracker, env: PickPlaceEnv, scenes: int = 20, seed: int = 0,
                   hfov_deg: float = 65.0, cam_pitch_deg: float = 0.0, ret_cfg: RetargetConfig | None = None,
-                  clean_cfg: CleanConfig | None = None):
+                  clean_cfg: CleanConfig | None = None, depth: DepthEstimator | None = None, depth_weight: float = 0.5):
     """Video file -> (demos, report). The report always says what happened, including why a video was rejected."""
-    poses, cam = poses_from_video(path, tracker, hfov_deg=hfov_deg, cam_pitch_deg=cam_pitch_deg)
+    poses, cam, depth_info = poses_from_video(path, tracker, hfov_deg=hfov_deg, cam_pitch_deg=cam_pitch_deg,
+                                              depth=depth, depth_weight=depth_weight)
     n_hand = sum(p is not None for p in poses)
     report = {"video": str(path), "frames": len(poses), "frames_with_hand": n_hand,
-              "camera": {"w": cam.width, "h": cam.height, "hfov_deg": hfov_deg, "pitch_deg": cam_pitch_deg, "assumed_intrinsics": True}}
+              "camera": {"w": cam.width, "h": cam.height, "hfov_deg": hfov_deg, "pitch_deg": cam_pitch_deg, "assumed_intrinsics": True}, "depth_fusion": depth_info}
     try:
         demos, stats = demos_from_poses_multiscene(poses, env, scenes, f"video:{Path(path).name}", seed, clean_cfg, ret_cfg)
         report.update(status="ok", **stats)

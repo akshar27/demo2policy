@@ -61,11 +61,18 @@ intrinsics (a horizontal FOV you pass in). The camera must be fixed with a **kno
 alignment rotates about the vertical axis. The first real recordings are milestone 6b; expect the video-derived numbers to
 be worse than the synthetic ones.
 
+## Optional: Depth Anything V2
+
+`d2p video-to-demo ... --depth` fuses Depth Anything V2 (Small) into the hand depth. On simulator renders with exact depth
+it tracks inverse depth at Spearman 0.98 and reaches ~1.5% depth error after calibrating on 5 pixels
+(`docs/results/depth_check.md`) - but that scene is a robot arm, not a hand on real footage, and the model is calibrated against
+the PnP depth, so it cuts per-frame noise without fixing a wrong hand-size scale. It is off by default until real video says it helps.
+
 ## Quickstart
 
 ```bash
-python3.11 -m venv .venv && .venv/bin/pip install -e ".[dev,vision,learn]"
-.venv/bin/python -m pytest -q                       # 34 tests
+python3.11 -m venv .venv && .venv/bin/pip install -e ".[dev,vision,learn,depth]"
+.venv/bin/python -m pytest -q                       # 40 tests
 .venv/bin/d2p gen-expert --n 100 --out data/expert.h5
 .venv/bin/d2p train-bc --n-demos 100 --obs-noise 0.05 --out runs/bc
 .venv/bin/d2p eval bc:runs/bc/model.pt --episodes 100

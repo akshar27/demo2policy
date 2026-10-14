@@ -66,14 +66,16 @@ def train_bc_cmd(demos: Path = Path("data/expert.h5"), n_demos: int = 0, epochs:
 
 @app.command("video-to-demo")
 def video_to_demo(video: Path, scenes: int = 20, out: Path = Path("data/video_demos.h5"), hfov: float = 65.0,
-                  cam_pitch: float = 0.0, seed: int = 0, qa: Path | None = Path("runs/video_qa")):
-    """Track a human video (camera pitched down by --cam-pitch degrees, horizontal FOV --hfov), retarget it to `scenes` cube/target layouts, validate each in the sim, save the demos."""
+                  cam_pitch: float = 0.0, depth: bool = False, seed: int = 0, qa: Path | None = Path("runs/video_qa")):
+    """Track a human video (camera pitched down by --cam-pitch degrees, horizontal FOV --hfov), (--depth fuses Depth Anything V2 into the hand depth), retarget it to `scenes` cube/target layouts, validate each in the sim, save the demos."""
+    from .perception.depth import DepthAnythingV2
     from .perception.tracker import MediaPipeHandTracker
     from .pipeline import process_video
     from .qa import write_qa
 
     env = PickPlaceEnv(EnvConfig())
-    demos, report, poses = process_video(video, MediaPipeHandTracker(), env, scenes, seed, hfov, cam_pitch)
+    demos, report, poses = process_video(video, MediaPipeHandTracker(), env, scenes, seed, hfov, cam_pitch,
+                                          depth=DepthAnythingV2() if depth else None)
     typer.echo(json.dumps({k: v for k, v in report.items() if k != "track_quality"}, indent=2))
     if qa:
         typer.echo(f"QA written to {write_qa(qa, report, poses, demos)}")

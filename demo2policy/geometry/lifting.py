@@ -43,6 +43,7 @@ class HandPose3D:
     scale: float             # measured hand size (m) - a diagnostic for the tracker's metric scale
     depth: float             # camera-frame depth of the wrist (m)
     pinch_pt: np.ndarray     # (3,) midpoint of thumb tip and index tip, world frame: where the object is actually held
+    pinch_px: np.ndarray     # (2,) image position of the pinch point (pixels)
     closing_axis: np.ndarray  # (3,) unit hand-x axis in the world frame (thumb side): the gripper's closing direction
     reproj_px: float         # RMS reprojection error of the fit (px): a per-frame confidence signal
     score: float = 1.0
@@ -73,7 +74,7 @@ def lift_hand(obs: HandObservation, cam: Camera) -> HandPose3D:
     return HandPose3D(t=obs.t, wrist=cam.cam_to_world(pts_cam[WRIST]), R=R_world, pinch=pinch_ratio(p),
                       scale=hand_scale(p), depth=float(pts_cam[WRIST, 2]),
                       pinch_pt=cam.cam_to_world(0.5 * (pts_cam[THUMB_TIP] + pts_cam[INDEX_TIP])),
-                      closing_axis=R_world[:, 0].copy(), reproj_px=reproj, score=obs.score)
+                      pinch_px=0.5 * (obs.image_px[THUMB_TIP] + obs.image_px[INDEX_TIP]), closing_axis=R_world[:, 0].copy(), reproj_px=reproj, score=obs.score)
 
 
 def rotation_angle_deg(Ra: np.ndarray, Rb: np.ndarray) -> float:
